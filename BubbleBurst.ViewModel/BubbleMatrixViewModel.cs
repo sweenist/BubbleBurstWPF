@@ -13,8 +13,13 @@ namespace BubbleBurst.ViewModel
     /// </summary>
     public class BubbleMatrixViewModel : ObservableObject
     {
-        #region Constructor
+        private readonly BubbleFactory _bubbleFactory;
+        private readonly BubbleGroup _bubbleGroup;
+        private readonly Stack<int> _bubbleGroupSizeStack;
+        private readonly ObservableCollection<BubbleViewModel> _bubblesInternal;
+        private bool _isIdle;
 
+        /// <summary>Initializes a new instance of the <see cref="BubbleMatrixViewModel"/> class.</summary>
         internal BubbleMatrixViewModel()
         {
             _bubblesInternal = new ObservableCollection<BubbleViewModel>();
@@ -31,24 +36,12 @@ namespace BubbleBurst.ViewModel
             _isIdle = true;
         }
 
-        #endregion // Constructor
-
-        #region Events
-
-        /// <summary>
-        /// Raised when there are no more bubble groups left to burst.
-        /// </summary>
+        /// <summary>Raised when there are no more bubble groups left to burst.</summary>
         public event EventHandler GameEnded;
-
-        #endregion // Events
 
         #region Properties
 
-        #region Public
-
-        /// <summary>
-        /// Returns a read-only collection of all bubbles in the bubble matrix.
-        /// </summary>
+        /// <summary>Returns a read-only collection of all bubbles in the bubble matrix.</summary>
         public ReadOnlyObservableCollection<BubbleViewModel> Bubbles { get; private set; }
 
         /// <summary>
@@ -65,40 +58,24 @@ namespace BubbleBurst.ViewModel
 
                 _isIdle = value;
 
-                base.RaisePropertyChanged("IsIdle");
+                RaisePropertyChanged("IsIdle");
             }
         }
 
-        /// <summary>
-        /// Returns the object that creates and publishes tasks for a bubble matrix.
-        /// </summary>
+        /// <summary>Returns the object that creates and publishes tasks for a bubble matrix.</summary>
         public BubblesTaskManager TaskManager { get; private set; }
 
-        #endregion // Public
+        /// <summary>Gets a value indicating whether action can be undone.</summary>
+        internal bool CanUndo => IsIdle && TaskManager.CanUndo;
 
-        #region Internal
+        /// <summary>Gets or sets the column count.</summary>
+        internal int ColumnCount { get; set; }
 
-        internal bool CanUndo
-        {
-            get { return IsIdle && TaskManager.CanUndo; }
-        }
+        /// <summary>Gets or sets the row count.</summary>
+        internal int RowCount { get; set; }
 
-        internal int ColumnCount
-        {
-            get { return _columnCount; }
-        }
-
-        internal int MostBubblesPoppedAtOnce
-        {
-            get { return _bubbleGroupSizeStack.Max(); }
-        }
-
-        internal int RowCount
-        {
-            get { return _rowCount; }
-        }
-
-        #endregion // Internal
+        /// <summary>Gets the most bubbles popped at once.</summary>
+        internal int MostBubblesPoppedAtOnce => _bubbleGroupSizeStack.Max();
 
         #endregion // Properties
 
@@ -117,10 +94,7 @@ namespace BubbleBurst.ViewModel
             _bubblesInternal.Clear();
         }
 
-        /// <summary>
-        /// Updates the number of rows and columns that 
-        /// the matrix should contain.
-        /// </summary>
+        /// <summary>Updates the number of rows and columns that the matrix should contain.</summary>
         /// <param name="rowCount">The number of bubble rows.</param>
         /// <param name="columnCount">The number of bubble columns.</param>
         public void SetDimensions(int rowCount, int columnCount)
@@ -134,8 +108,8 @@ namespace BubbleBurst.ViewModel
             if (columnCount < 1)
                 throw new ArgumentOutOfRangeException("columnCount", columnCount, "Must be greater than zero.");
 
-            _rowCount = rowCount;
-            _columnCount = columnCount;
+            RowCount = rowCount;
+            ColumnCount = columnCount;
         }
 
         /// <summary>
@@ -143,7 +117,6 @@ namespace BubbleBurst.ViewModel
         /// </summary>
         public void StartNewGame()
         {
-            // Reset game state.
             IsIdle = true;
             ResetBubbleGroup();
             _bubbleGroupSizeStack.Clear();
@@ -177,6 +150,9 @@ namespace BubbleBurst.ViewModel
 
         #region Internal
 
+        /// <summary>Adds the bubble.</summary>
+        /// <param name="bubble">The bubble.</param>
+        /// <exception cref="System.ArgumentNullException">bubble</exception>
         internal void AddBubble(BubbleViewModel bubble)
         {
             if (bubble == null)
@@ -185,6 +161,8 @@ namespace BubbleBurst.ViewModel
             _bubblesInternal.Add(bubble);
         }
 
+        /// <summary>Bursts the bubble group.</summary>
+        /// <exception cref="System.InvalidOperationException">Cannot burst a bubble group when not idle.</exception>
         internal void BurstBubbleGroup()
         {
             if (!IsIdle)
@@ -199,11 +177,15 @@ namespace BubbleBurst.ViewModel
             TaskManager.PublishTasks(bubblesInGroup);
         }
 
+        /// <summary>Resets the bubble group.</summary>
         internal void ResetBubbleGroup()
         {
             _bubbleGroup.Reset();
         }
 
+        /// <summary>Removes the bubble.</summary>
+        /// <param name="bubble">The bubble.</param>
+        /// <exception cref="System.ArgumentNullException">bubble</exception>
         internal void RemoveBubble(BubbleViewModel bubble)
         {
             if (bubble == null)
@@ -212,9 +194,11 @@ namespace BubbleBurst.ViewModel
             _bubblesInternal.Remove(bubble);
         }
 
+        /// <summary>Tries to end game.</summary>
         internal void TryToEndGame()
         {
             bool groupExists = Bubbles.Any(b => IsInBubbleGroup(b));
+
             if (!groupExists)
             {
                 IsIdle = false;
@@ -222,9 +206,12 @@ namespace BubbleBurst.ViewModel
             }
         }
 
+        /// <summary>Verifies the group membership.</summary>
+        /// <param name="bubble">The bubble.</param>
         internal void VerifyGroupMembership(BubbleViewModel bubble)
         {
             _bubbleGroup.Deactivate();
+
             if (bubble != null)
             {
                 _bubbleGroup.FindBubbleGroup(bubble).Activate();
@@ -233,36 +220,16 @@ namespace BubbleBurst.ViewModel
 
         #endregion // Internal
 
-        #region Private
-
-        bool IsInBubbleGroup(BubbleViewModel bubble)
+        private bool IsInBubbleGroup(BubbleViewModel bubble)
         {
             return new BubbleGroup(Bubbles).FindBubbleGroup(bubble).HasBubbles;
         }
 
-        void RaiseGameEnded()
+        private void RaiseGameEnded()
         {
-            var handler = GameEnded;
-            if (handler != null)
-            {
-                handler(this, EventArgs.Empty);
-            }
+            GameEnded?.Invoke(this, EventArgs.Empty);
         }
 
-        #endregion // Private
-
         #endregion // Methods
-
-        #region Fields
-
-        readonly BubbleFactory _bubbleFactory;
-        readonly BubbleGroup _bubbleGroup;
-        readonly Stack<int> _bubbleGroupSizeStack;
-        readonly ObservableCollection<BubbleViewModel> _bubblesInternal;
-
-        int _columnCount, _rowCount;
-        bool _isIdle;
-
-        #endregion // Fields
     }
 }

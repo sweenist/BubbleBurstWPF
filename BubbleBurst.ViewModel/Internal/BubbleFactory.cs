@@ -50,10 +50,10 @@ namespace BubbleBurst.ViewModel.Internal
             if (!_timer.IsEnabled)
                 return;
 
-            for (int i = 0; i < 4 && _bubbleStagingArea.Any(); ++i)
+            for (var i = 0; i < 4 && _bubbleStagingArea.Any(); ++i)
             {
                 // Get a random bubble from the staging area.
-                int index = _random.Next(0, _bubbleStagingArea.Count);
+                var index = _random.Next(0, _bubbleStagingArea.Count);
                 var bubble = _bubbleStagingArea[index];
                 _bubbleStagingArea.RemoveAt(index);
 
