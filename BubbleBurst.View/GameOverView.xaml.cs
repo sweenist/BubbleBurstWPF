@@ -11,44 +11,34 @@ namespace BubbleBurst.View
     /// </summary>
     public partial class GameOverView : UserControl
     {
-        #region Constructor
 
+        private GameOverViewModel _gameOver;
+        private readonly Storyboard _outroStoryboard;
+
+        /// <summary>Initializes a new instance of the <see cref="GameOverView"/> class.</summary>
         public GameOverView()
         {
             InitializeComponent();
 
             _outroStoryboard = _contentBorder.Resources["OutroStoryboard"] as Storyboard;
 
-            base.DataContextChanged += this.HandleDataContextChanged;
+            DataContextChanged += HandleDataContextChanged;
         }
 
-        #endregion // Constructor
-
-        #region Methods
-
-        void HandleDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        private void HandleDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            _gameOver = base.DataContext as GameOverViewModel;
+            _gameOver = DataContext as GameOverViewModel;
         }
 
-        void HandlePlayAgainHyperlinkClick(object sender, RoutedEventArgs e)
+        private void HandlePlayAgainHyperlinkClick(object sender, RoutedEventArgs e)
         {
             _gameOver.StartNewGame();
             _outroStoryboard.Begin(this);
         }
 
-        void HandleOutroCompleted(object sender, EventArgs e)
+        private void HandleOutroCompleted(object sender, EventArgs e)
         {
             _gameOver.Close();
         }
-
-        #endregion // Methods
-
-        #region Fields
-
-        GameOverViewModel _gameOver;
-        readonly Storyboard _outroStoryboard;
-
-        #endregion // Fields
     }
 }

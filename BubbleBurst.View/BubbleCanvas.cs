@@ -5,42 +5,26 @@ using BubbleBurst.ViewModel;
 
 namespace BubbleBurst.View
 {
-    /// <summary>
-    /// A Canvas panel that arranges bubbles into a matrix layout.
-    /// </summary>
+    /// <summary>A Canvas panel that arranges bubbles into a matrix layout.</summary>
+    /// <seealso cref="System.Windows.Controls.Canvas" />
     public class BubbleCanvas : Canvas
     {
-        #region Constructor
+        /// <summary>Gets the size of the bubble.</summary>
+        internal static int BubbleSize => 42;
 
-        public BubbleCanvas()
-        {
-        }
+        /// <summary>Gets the column count.</summary>
+        internal int ColumnCount => (int)Math.Floor(ActualWidth / BubbleSize);
 
-        #endregion // Constructor
-
-        #region Properties
-
-        internal static int BubbleSize
-        {
-            get { return 42; }
-        }
-
-        internal int ColumnCount
-        {
-            get { return (int)Math.Floor(base.ActualWidth / BubbleSize); }
-        }
-
-        internal int RowCount
-        {
-            get { return (int)Math.Floor(base.ActualHeight / BubbleSize); }
-        }
-
-        #endregion // Properties
+        /// <summary>Gets the row count.</summary>
+        internal int RowCount => (int)Math.Floor(ActualHeight / BubbleSize);
 
         #region Methods
 
-        #region Internal
-
+        /// <summary>Calculates the left point of a bubble.</summary>
+        /// <param name="bubbleContainer">The bubble container.</param>
+        /// <returns>Left point of a bubble's column.</returns>
+        /// <exception cref="System.ArgumentNullException">bubbleContainer</exception>
+        /// <exception cref="System.ArgumentException">Element does not have a BubbleViewModel as its DataContext.;bubbleContainer</exception>
         internal double CalculateLeft(FrameworkElement bubbleContainer)
         {
             if (bubbleContainer == null)
@@ -50,9 +34,14 @@ namespace BubbleBurst.View
             if (bubble == null)
                 throw new ArgumentException("Element does not have a BubbleViewModel as its DataContext.", "bubbleContainer");
 
-            return this.CalculateLeft(bubble.Column);
+            return CalculateLeft(bubble.Column);
         }
 
+        /// <summary>Calculates the top point of a bubble.</summary>
+        /// <param name="bubbleContainer">The bubble container.</param>
+        /// <returns>Top point of a bubble's row.</returns>
+        /// <exception cref="System.ArgumentNullException">bubbleContainer</exception>
+        /// <exception cref="System.ArgumentException">Element does not have a BubbleViewModel as its DataContext.;bubbleContainer</exception>
         internal double CalculateTop(FrameworkElement bubbleContainer)
         {
             if (bubbleContainer == null)
@@ -62,12 +51,8 @@ namespace BubbleBurst.View
             if (bubble == null)
                 throw new ArgumentException("Element does not have a BubbleViewModel as its DataContext.", "bubbleContainer");
 
-            return this.CalculateTop(bubble.Row);
+            return CalculateTop(bubble.Row);
         }
-
-        #endregion // Internal
-
-        #region Protected
 
         protected override void OnVisualChildrenChanged(DependencyObject visualAdded, DependencyObject visualRemoved)
         {
@@ -77,8 +62,8 @@ namespace BubbleBurst.View
                 var bubble = contentPresenter.DataContext as BubbleViewModel;
                 if (bubble != null)
                 {
-                    Canvas.SetLeft(contentPresenter, CalculateLeft(bubble.Column));
-                    Canvas.SetTop(contentPresenter, CalculateTop(bubble.Row));
+                    SetLeft(contentPresenter, CalculateLeft(bubble.Column));
+                    SetTop(contentPresenter, CalculateTop(bubble.Row));
 
                     contentPresenter.Width = BubbleSize;
                     contentPresenter.Height = BubbleSize;
@@ -88,25 +73,21 @@ namespace BubbleBurst.View
             base.OnVisualChildrenChanged(visualAdded, visualRemoved);
         }
 
-        #endregion // Protected
-
-        #region Private
-
-        double CalculateLeft(int column)
+        private double CalculateLeft(int column)
         {
-            double bubblesWidth = BubbleSize * this.ColumnCount;
-            double horizOffset = (base.ActualWidth - bubblesWidth) / 2;
+            double bubblesWidth = BubbleSize * ColumnCount;
+            var horizOffset = (ActualWidth - bubblesWidth) / 2L;
+
             return column * BubbleSize + horizOffset;
         }
 
-        double CalculateTop(int row)
+        private double CalculateTop(int row)
         {
-            double bubblesHeight = BubbleSize * this.RowCount;
-            double vertOffset = (base.ActualHeight - bubblesHeight) / 2;
+            double bubblesHeight = BubbleSize * RowCount;
+            var vertOffset = (ActualHeight - bubblesHeight) / 2L;
+
             return row * BubbleSize + vertOffset;
         }
-
-        #endregion // Private
 
         #endregion // Methods
     }

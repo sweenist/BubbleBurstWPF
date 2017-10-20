@@ -65,8 +65,8 @@ namespace BubbleBurst.ViewModel
         internal void PublishTasks(BubbleViewModel[] bubblesInGroup)
         {
             var tasks = _bubblesTaskFactory.CreateTasks(bubblesInGroup);
-            this.ArchiveTasks(tasks);
-            this.PublishTasks(tasks);
+            ArchiveTasks(tasks);
+            PublishTasks(tasks);
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace BubbleBurst.ViewModel
         {
             var originalTasks = _undoStack.Pop();
             var undoTasks = _bubblesTaskFactory.CreateUndoTasks(originalTasks);
-            this.PublishTasks(undoTasks);
+            PublishTasks(undoTasks);
         }
 
         /// <summary>
@@ -104,12 +104,12 @@ namespace BubbleBurst.ViewModel
                 _pendingTasks.Enqueue(task);
             }
 
-            this.RaisePendingTasksAvailable();
+            RaisePendingTasksAvailable();
         }
 
         void RaisePendingTasksAvailable()
         {
-            var handler = this.PendingTasksAvailable;
+            var handler = PendingTasksAvailable;
             if (handler != null)
             {
                 handler(this, EventArgs.Empty);

@@ -6,7 +6,7 @@
   ResizeMode="NoResize"
   Title="BubbleBurst!" 
   Width="512" Height="540" 
-  WindowStartupLocation="CenterScreen"  
+  WindowStartupLocation="CenterScreen"
   >
   <view:BubbleBurstView />
 </Window>

@@ -5,13 +5,17 @@ using System.Windows.Threading;
 
 namespace BubbleBurst.ViewModel.Internal
 {
-    /// <summary>
-    /// Creates BubbleViewModel objects and adds them to the bubble matrix.
-    /// </summary>
+    /// <summary>Creates BubbleViewModel objects and adds them to the bubble matrix.</summary>
     internal class BubbleFactory
     {
-        #region Constructor
+        private readonly BubbleMatrixViewModel _bubbleMatrix;
+        private readonly List<BubbleViewModel> _bubbleStagingArea;
+        private readonly Random _random = new Random(DateTime.Now.Millisecond);
+        private readonly DispatcherTimer _timer;
 
+        /// <summary>Initializes a new instance of the <see cref="BubbleFactory"/> class.</summary>
+        /// <param name="bubbleMatrix">The bubble matrix.</param>
+        /// <exception cref="System.ArgumentNullException">bubbleMatrix</exception>
         internal BubbleFactory(BubbleMatrixViewModel bubbleMatrix)
         {
             if (bubbleMatrix == null)
@@ -22,16 +26,10 @@ namespace BubbleBurst.ViewModel.Internal
             _bubbleStagingArea = new List<BubbleViewModel>();
 
             _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(10) };
-            _timer.Tick += this.HandleTimerTick;
+            _timer.Tick += HandleTimerTick;
         }
 
-        #endregion // Constructor
-
-        #region Methods
-
-        /// <summary>
-        /// Populates the bubble matrix with new bubbles over time.
-        /// </summary>
+        /// <summary>Populates the bubble matrix with new bubbles over time.</summary>
         internal void CreateBubblesAsync()
         {
             _timer.Stop();
@@ -47,7 +45,7 @@ namespace BubbleBurst.ViewModel.Internal
             _timer.Start();
         }
 
-        void HandleTimerTick(object sender, EventArgs e)
+        private void HandleTimerTick(object sender, EventArgs e)
         {
             if (!_timer.IsEnabled)
                 return;
@@ -69,16 +67,5 @@ namespace BubbleBurst.ViewModel.Internal
                 }
             }
         }
-
-        #endregion // Methods
-
-        #region Fields
-
-        readonly BubbleMatrixViewModel _bubbleMatrix;
-        readonly List<BubbleViewModel> _bubbleStagingArea;
-        readonly Random _random = new Random(DateTime.Now.Millisecond);
-        readonly DispatcherTimer _timer;
-
-        #endregion // Fields
     }
 }

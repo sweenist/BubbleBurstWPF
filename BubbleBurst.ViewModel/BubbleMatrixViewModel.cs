@@ -18,13 +18,13 @@ namespace BubbleBurst.ViewModel
         internal BubbleMatrixViewModel()
         {
             _bubblesInternal = new ObservableCollection<BubbleViewModel>();
-            this.Bubbles = new ReadOnlyObservableCollection<BubbleViewModel>(_bubblesInternal);
+            Bubbles = new ReadOnlyObservableCollection<BubbleViewModel>(_bubblesInternal);
 
-            this.TaskManager = new BubblesTaskManager(this);
+            TaskManager = new BubblesTaskManager(this);
 
             _bubbleFactory = new BubbleFactory(this);
 
-            _bubbleGroup = new BubbleGroup(this.Bubbles);
+            _bubbleGroup = new BubbleGroup(Bubbles);
 
             _bubbleGroupSizeStack = new Stack<int>();
 
@@ -80,7 +80,7 @@ namespace BubbleBurst.ViewModel
 
         internal bool CanUndo
         {
-            get { return this.IsIdle && this.TaskManager.CanUndo; }
+            get { return IsIdle && TaskManager.CanUndo; }
         }
 
         internal int ColumnCount
@@ -111,7 +111,7 @@ namespace BubbleBurst.ViewModel
         /// </summary>
         public void ClearBubbles()
         {
-            if (!this.IsIdle)
+            if (!IsIdle)
                 throw new InvalidOperationException("Cannot clear bubbles when matrix is not idle.");
 
             _bubblesInternal.Clear();
@@ -125,7 +125,7 @@ namespace BubbleBurst.ViewModel
         /// <param name="columnCount">The number of bubble columns.</param>
         public void SetDimensions(int rowCount, int columnCount)
         {
-            if (!this.IsIdle)
+            if (!IsIdle)
                 throw new InvalidOperationException("Cannot set matrix dimensions is not idle.");
 
             if (rowCount < 1)
@@ -144,13 +144,13 @@ namespace BubbleBurst.ViewModel
         public void StartNewGame()
         {
             // Reset game state.
-            this.IsIdle = true;
-            this.ResetBubbleGroup();
+            IsIdle = true;
+            ResetBubbleGroup();
             _bubbleGroupSizeStack.Clear();
-            this.TaskManager.Reset();
+            TaskManager.Reset();
 
             // Create a new matrix of bubbles.
-            this.ClearBubbles();
+            ClearBubbles();
             _bubbleFactory.CreateBubblesAsync();
         }
 
@@ -160,16 +160,16 @@ namespace BubbleBurst.ViewModel
         /// </summary>
         public void Undo()
         {
-            if (!this.IsIdle)
+            if (!IsIdle)
                 throw new InvalidOperationException("Cannot undo when not idle.");
 
-            if (this.CanUndo)
+            if (CanUndo)
             {
                 // Throw away the last bubble group size, 
                 // since that burst is about to be undone.
                 _bubbleGroupSizeStack.Pop();
 
-                this.TaskManager.Undo();
+                TaskManager.Undo();
             }
         }
 
@@ -187,7 +187,7 @@ namespace BubbleBurst.ViewModel
 
         internal void BurstBubbleGroup()
         {
-            if (!this.IsIdle)
+            if (!IsIdle)
                 throw new InvalidOperationException("Cannot burst a bubble group when not idle.");
 
             var bubblesInGroup = _bubbleGroup.BubblesInGroup.ToArray();
@@ -196,7 +196,7 @@ namespace BubbleBurst.ViewModel
 
             _bubbleGroupSizeStack.Push(bubblesInGroup.Length);
 
-            this.TaskManager.PublishTasks(bubblesInGroup);
+            TaskManager.PublishTasks(bubblesInGroup);
         }
 
         internal void ResetBubbleGroup()
@@ -214,11 +214,11 @@ namespace BubbleBurst.ViewModel
 
         internal void TryToEndGame()
         {
-            bool groupExists = this.Bubbles.Any(b => this.IsInBubbleGroup(b));
+            bool groupExists = Bubbles.Any(b => IsInBubbleGroup(b));
             if (!groupExists)
             {
-                this.IsIdle = false;
-                this.RaiseGameEnded();
+                IsIdle = false;
+                RaiseGameEnded();
             }
         }
 
@@ -237,12 +237,12 @@ namespace BubbleBurst.ViewModel
 
         bool IsInBubbleGroup(BubbleViewModel bubble)
         {
-            return new BubbleGroup(this.Bubbles).FindBubbleGroup(bubble).HasBubbles;
+            return new BubbleGroup(Bubbles).FindBubbleGroup(bubble).HasBubbles;
         }
 
         void RaiseGameEnded()
         {
-            var handler = this.GameEnded;
+            var handler = GameEnded;
             if (handler != null)
             {
                 handler(this, EventArgs.Empty);

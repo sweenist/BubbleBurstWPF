@@ -13,11 +13,11 @@ namespace BubbleBurst.ViewModel
 
         public BubbleBurstViewModel()
         {
-            this.BubbleMatrix = new BubbleMatrixViewModel();
-            this.BubbleMatrix.GameEnded += delegate
+            BubbleMatrix = new BubbleMatrixViewModel();
+            BubbleMatrix.GameEnded += delegate
             {
-                this.GameOver = new GameOverViewModel(this.BubbleMatrix);
-                this.GameOver.RequestClose += this.HandleGameOverRequestClose;
+                GameOver = new GameOverViewModel(BubbleMatrix);
+                GameOver.RequestClose += HandleGameOverRequestClose;
             };
         }
 
@@ -35,7 +35,7 @@ namespace BubbleBurst.ViewModel
         /// </summary>
         public bool CanUndo
         {
-            get { return this.GameOver == null && this.BubbleMatrix.CanUndo; }
+            get { return GameOver == null && BubbleMatrix.CanUndo; }
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace BubbleBurst.ViewModel
         /// </summary>
         public ICommand RestartCommand
         {
-            get { return new RelayCommand(this.BubbleMatrix.StartNewGame); }
+            get { return new RelayCommand(BubbleMatrix.StartNewGame); }
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace BubbleBurst.ViewModel
         /// </summary>
         public ICommand UndoCommand
         {
-            get { return new RelayCommand(this.BubbleMatrix.Undo, () => this.CanUndo); }
+            get { return new RelayCommand(BubbleMatrix.Undo, () => CanUndo); }
         }
 
         #endregion // Properties
@@ -77,8 +77,8 @@ namespace BubbleBurst.ViewModel
 
         void HandleGameOverRequestClose(object sender, EventArgs e)
         {
-            this.GameOver.RequestClose -= this.HandleGameOverRequestClose;
-            this.GameOver = null;
+            GameOver.RequestClose -= HandleGameOverRequestClose;
+            GameOver = null;
         }
 
         #endregion // Methods

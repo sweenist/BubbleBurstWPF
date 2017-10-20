@@ -10,20 +10,16 @@ namespace BubbleBurst.View
     /// </summary>
     public partial class BubbleView : Button
     {
-        #region Constructor
+        private BubbleViewModel _bubble;
 
         public BubbleView()
         {
             InitializeComponent();
 
-            base.DataContextChanged += this.HandleDataContextChanged;
-            base.MouseEnter += this.HandleMouseEnter;
-            base.MouseLeave += this.HandleMouseLeave;
+            DataContextChanged += HandleDataContextChanged;
+            MouseEnter += HandleMouseEnter;
+            MouseLeave += HandleMouseLeave;
         }
-
-        #endregion // Constructor
-
-        #region Methods
 
         void HandleDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
@@ -45,13 +41,5 @@ namespace BubbleBurst.View
                 _bubble.VerifyGroupMembership(false);
             }
         }
-
-        #endregion // Methods
-
-        #region Fields
-
-        BubbleViewModel _bubble;
-
-        #endregion // Fields
     }
 }

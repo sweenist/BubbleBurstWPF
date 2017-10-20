@@ -15,8 +15,11 @@ namespace BubbleBurst.View
     /// </summary>
     internal class BubblesTaskStoryboardFactory
     {
-        #region Constructor
+        private readonly BubbleCanvas _bubbleCanvas;
 
+        /// <summary>Initializes a new instance of the <see cref="BubblesTaskStoryboardFactory"/> class.</summary>
+        /// <param name="bubbleCanvas">The bubble canvas.</param>
+        /// <exception cref="System.ArgumentNullException">bubbleCanvas</exception>
         internal BubblesTaskStoryboardFactory(BubbleCanvas bubbleCanvas)
         {
             if (bubbleCanvas == null)
@@ -25,12 +28,6 @@ namespace BubbleBurst.View
             _bubbleCanvas = bubbleCanvas;
         }
 
-        #endregion // Constructor
-
-        #region Methods
-
-        #region Internal
-
         internal Storyboard CreateStoryboard(BubblesTask task)
         {
             int millisecondsPerUnit;
@@ -38,14 +35,14 @@ namespace BubbleBurst.View
             DependencyProperty animatedProperty;
             IEnumerable<BubbleViewModel> bubbles;
 
-            this.GetStoryboardCreationData(
+            GetStoryboardCreationData(
                 task,
                 out millisecondsPerUnit,
                 out getTo,
                 out animatedProperty,
                 out bubbles);
 
-            return this.CreateStoryboard(
+            return CreateStoryboard(
                 task,
                 millisecondsPerUnit,
                 getTo,
@@ -53,16 +50,12 @@ namespace BubbleBurst.View
                 bubbles.ToArray());
         }
 
-        #endregion // Internal
-
-        #region Private
-
-        void GetStoryboardCreationData(
-          BubblesTask task,
-          out int millisecondsPerUnit,
-          out Func<ContentPresenter, double> getTo,
-          out DependencyProperty animatedProperty,
-          out IEnumerable<BubbleViewModel> bubbles)
+        private void GetStoryboardCreationData(
+            BubblesTask task,
+            out int millisecondsPerUnit,
+            out Func<ContentPresenter, double> getTo,
+            out DependencyProperty animatedProperty,
+            out IEnumerable<BubbleViewModel> bubbles)
         {
             switch (task.TaskType)
             {
@@ -111,7 +104,7 @@ namespace BubbleBurst.View
             }
         }
 
-        Storyboard CreateStoryboard(
+        private Storyboard CreateStoryboard(
             BubblesTask task,
             int millisecondsPerUnit,
             Func<ContentPresenter, double> getTo,
@@ -126,7 +119,7 @@ namespace BubbleBurst.View
             var beginTime = TimeSpan.FromMilliseconds(0);
             var beginTimeIncrement = TimeSpan.FromMilliseconds(millisecondsPerUnit / bubbles.Count());
 
-            foreach (ContentPresenter presenter in this.GetBubblePresenters(bubbles))
+            foreach (var presenter in GetBubblePresenters(bubbles))
             {
                 var bubble = presenter.DataContext as BubbleViewModel;
                 var duration = CalculateDuration(task.TaskType, bubble, millisecondsPerUnit);
@@ -165,12 +158,13 @@ namespace BubbleBurst.View
                     bubblePresenters.Add(bubblePresenter);
                 }
             }
+
             return bubblePresenters;
         }
 
-        static Duration CalculateDuration(
-            BubblesTaskType taskType, 
-            BubbleViewModel bubble, 
+        private static Duration CalculateDuration(
+            BubblesTaskType taskType,
+            BubbleViewModel bubble,
             int millisecondsPerUnit)
         {
             int totalMilliseconds;
@@ -191,22 +185,13 @@ namespace BubbleBurst.View
                 default:
                     throw new ArgumentException("Unrecognized BubblesTaskType value: " + taskType, "taskType");
             }
+
             return new Duration(TimeSpan.FromMilliseconds(totalMilliseconds));
         }
 
-        static bool IsTaskStaggered(BubblesTaskType taskType)
+        private static bool IsTaskStaggered(BubblesTaskType taskType)
         {
             return taskType != BubblesTaskType.Burst;
         }
-
-        #endregion // Private
-
-        #endregion // Methods
-
-        #region Fields
-
-        readonly BubbleCanvas _bubbleCanvas;
-
-        #endregion // Fields
     }
 }

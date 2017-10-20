@@ -14,10 +14,10 @@ namespace BubbleBurst.ViewModel
 
         internal BubblesTask(BubblesTaskType taskType, bool isUndo, Func<IEnumerable<BubbleViewModel>> getBubbles, Action complete)
         {
-            this.TaskType = taskType;
-            this.IsUndo = isUndo;
+            TaskType = taskType;
+            IsUndo = isUndo;
             _getBubbles = getBubbles;
-            this.Complete = complete;
+            Complete = complete;
         }
 
         #endregion // Constructor

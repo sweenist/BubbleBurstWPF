@@ -11,57 +11,44 @@ namespace BubbleBurst.ViewModel.Internal
     /// </summary>
     internal class BubbleGroup
     {
-        #region Constructor
+        private readonly IEnumerable<BubbleViewModel> _allBubbles;
 
+        /// <summary>Initializes a new instance of the <see cref="BubbleGroup"/> class.</summary>
+        /// <param name="allBubbles">All bubbles.</param>
+        /// <exception cref="System.ArgumentNullException">allBubbles</exception>
         internal BubbleGroup(IEnumerable<BubbleViewModel> allBubbles)
         {
             if (allBubbles == null)
                 throw new ArgumentNullException("allBubbles");
 
             _allBubbles = allBubbles;
-            this.BubblesInGroup = new List<BubbleViewModel>();
+            BubblesInGroup = new List<BubbleViewModel>();
         }
 
-        #endregion // Constructor
+        /// <summary>Returns the list of bubbles in the bubble group.</summary>
+        internal IList<BubbleViewModel> BubblesInGroup { get; }
 
-        #region Properties
+        /// <summary>Returns true if there are any bubbles in the group.</summary>
+        internal bool HasBubbles => BubblesInGroup.Any();
 
-        /// <summary>
-        /// Returns the list of bubbles in the bubble group.
-        /// </summary>
-        internal IList<BubbleViewModel> BubblesInGroup { get; private set; }
-
-        /// <summary>
-        /// Returns true if there are any bubbles in the group.
-        /// </summary>
-        internal bool HasBubbles
-        {
-            get { return this.BubblesInGroup.Any(); }
-        }
-
-        #endregion // Properties
 
         #region Methods
 
         #region Internal
 
-        /// <summary>
-        /// Informs each bubble in the group that it is in the active bubble group.
-        /// </summary>
+        /// <summary>Informs each bubble in the group that it is in the active bubble group.</summary>
         internal void Activate()
         {
-            foreach (BubbleViewModel member in this.BubblesInGroup)
+            foreach (var member in BubblesInGroup)
             {
                 member.IsInBubbleGroup = true;
             }
         }
 
-        /// <summary>
-        /// Informs each bubble in the group that it is not in the active bubble group.
-        /// </summary>
+        /// <summary>Informs each bubble in the group that it is not in the active bubble group.</summary>
         internal void Deactivate()
         {
-            foreach (BubbleViewModel member in this.BubblesInGroup)
+            foreach (var member in BubblesInGroup)
             {
                 member.IsInBubbleGroup = false;
             }
@@ -72,31 +59,26 @@ namespace BubbleBurst.ViewModel.Internal
         /// is a member.  If a group is found, this object's BubblesInGroup
         /// collection will contain the bubbles in that group afterwards.
         /// </summary>
-        /// <param name="bubble">
-        /// The bubble with which to begin searching for a group.
-        /// </param>
-        /// <returns>
-        /// Returns this object, enabling a fluid-style API usage.
-        /// </returns>
+        /// <param name="bubble">The bubble with which to begin searching for a group.</param>
+        /// <returns>Returns this object, enabling a fluid-style API usage.</returns>
         internal BubbleGroup FindBubbleGroup(BubbleViewModel bubble)
         {
             if (bubble == null)
                 throw new ArgumentNullException("bubble");
 
-            bool isBubbleInCurrentGroup = this.BubblesInGroup.Contains(bubble);
+            var isBubbleInCurrentGroup = BubblesInGroup.Contains(bubble);
+
             if (!isBubbleInCurrentGroup)
             {
-                this.BubblesInGroup.Clear();
+                BubblesInGroup.Clear();
+                SearchForGroup(bubble);
 
-                this.SearchForGroup(bubble);
-
-                bool addOriginalBubble =
-                    this.HasBubbles &&
-                    !this.BubblesInGroup.Contains(bubble);
+                var addOriginalBubble = HasBubbles
+                                     && !BubblesInGroup.Contains(bubble);
 
                 if (addOriginalBubble)
                 {
-                    this.BubblesInGroup.Add(bubble);
+                    BubblesInGroup.Add(bubble);
                 }
             }
             return this;
@@ -104,8 +86,8 @@ namespace BubbleBurst.ViewModel.Internal
 
         internal void Reset()
         {
-            this.Deactivate();
-            this.BubblesInGroup.Clear();
+            Deactivate();
+            BubblesInGroup.Clear();
         }
 
         #endregion // Internal
@@ -117,12 +99,12 @@ namespace BubbleBurst.ViewModel.Internal
             if (bubble == null)
                 throw new ArgumentNullException("bubble");
 
-            foreach (BubbleViewModel groupMember in this.FindMatchingNeighbors(bubble))
+            foreach (var groupMember in FindMatchingNeighbors(bubble))
             {
-                if (!this.BubblesInGroup.Contains(groupMember))
+                if (!BubblesInGroup.Contains(groupMember))
                 {
-                    this.BubblesInGroup.Add(groupMember);
-                    this.SearchForGroup(groupMember);
+                    BubblesInGroup.Add(groupMember);
+                    SearchForGroup(groupMember);
                 }
             }
         }
@@ -132,22 +114,22 @@ namespace BubbleBurst.ViewModel.Internal
             var matches = new List<BubbleViewModel>();
 
             // Check above.
-            var match = this.TryFindMatch(bubble.Row - 1, bubble.Column, bubble.BubbleType);
+            var match = TryFindMatch(bubble.Row - 1, bubble.Column, bubble.BubbleType);
             if (match != null)
                 matches.Add(match);
 
             // Check below.
-            match = this.TryFindMatch(bubble.Row + 1, bubble.Column, bubble.BubbleType);
+            match = TryFindMatch(bubble.Row + 1, bubble.Column, bubble.BubbleType);
             if (match != null)
                 matches.Add(match);
 
             // Check left.
-            match = this.TryFindMatch(bubble.Row, bubble.Column - 1, bubble.BubbleType);
+            match = TryFindMatch(bubble.Row, bubble.Column - 1, bubble.BubbleType);
             if (match != null)
                 matches.Add(match);
 
             // Check right.
-            match = this.TryFindMatch(bubble.Row, bubble.Column + 1, bubble.BubbleType);
+            match = TryFindMatch(bubble.Row, bubble.Column + 1, bubble.BubbleType);
             if (match != null)
                 matches.Add(match);
 
@@ -156,20 +138,14 @@ namespace BubbleBurst.ViewModel.Internal
 
         BubbleViewModel TryFindMatch(int row, int column, BubbleType bubbleType)
         {
-            return _allBubbles.SingleOrDefault(b =>
-                b.Row == row &&
-                b.Column == column &&
-                b.BubbleType == bubbleType);
+            return _allBubbles.SingleOrDefault(b => b.Row == row
+                                                 && b.Column == column
+                                                 && b.BubbleType == bubbleType);
         }
 
         #endregion // Private
 
         #endregion // Methods
 
-        #region Fields
-
-        readonly IEnumerable<BubbleViewModel> _allBubbles;
-
-        #endregion // Fields
     }
 }

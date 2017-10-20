@@ -12,19 +12,20 @@ namespace BubbleBurst.View
     /// </summary>
     public partial class BubbleBurstView : UserControl
     {
-        #region Constructor
+        private readonly BubbleBurstViewModel _bubbleBurst;
 
+        /// <summary>Initializes a new instance of the <see cref="BubbleBurstView"/> class.</summary>
         public BubbleBurstView()
         {
             LoadBubbleViewResources();
 
             InitializeComponent();
 
-            _bubbleBurst = base.DataContext as BubbleBurstViewModel;
-            _bubbleMatrixView.MatrixDimensionsAvailable += this.HandleMatrixDimensionsAvailable;
+            _bubbleBurst = DataContext as BubbleBurstViewModel;
+            _bubbleMatrixView.MatrixDimensionsAvailable += HandleMatrixDimensionsAvailable;
         }
 
-        static void LoadBubbleViewResources()
+        private static void LoadBubbleViewResources()
         {
             // Insert the BubbleView resources at the App level to avoid resource duplication.
             // If we insert the resources into this control's Resources collection, every time
@@ -37,28 +38,23 @@ namespace BubbleBurst.View
             Application.Current.Resources.MergedDictionaries.Add(bubbleViewResources);
         }
 
-        #endregion // Constructor
-
-        #region Methods
-
-        void HandleMatrixDimensionsAvailable(object sender, EventArgs e)
+        private void HandleMatrixDimensionsAvailable(object sender, EventArgs e)
         {
             // Hook the keyboard event on the Window because this
             // control does not receive keystrokes.
             var window = Window.GetWindow(this);
             if (window != null)
             {
-                window.PreviewKeyDown += this.HandleWindowPreviewKeyDown;
+                window.PreviewKeyDown += HandleWindowPreviewKeyDown;
             }
 
-            this.StartNewGame();
+            StartNewGame();
         }
 
-        void HandleWindowPreviewKeyDown(object sender, KeyEventArgs e)
+        private void HandleWindowPreviewKeyDown(object sender, KeyEventArgs e)
         {
-            bool undo = 
-                Keyboard.Modifiers == ModifierKeys.Control && 
-                e.Key == Key.Z;
+            bool undo = Keyboard.Modifiers.Equals(ModifierKeys.Control)
+                && e.Key.Equals(Key.Z);
 
             if (undo && _bubbleBurst.CanUndo)
             {
@@ -67,20 +63,12 @@ namespace BubbleBurst.View
             }
         }
 
-        void StartNewGame()
+        private void StartNewGame()
         {
-            int rows = _bubbleMatrixView.RowCount;
-            int cols = _bubbleMatrixView.ColumnCount;
+            var rows = _bubbleMatrixView.RowCount;
+            var cols = _bubbleMatrixView.ColumnCount;
             _bubbleBurst.BubbleMatrix.SetDimensions(rows, cols);
             _bubbleBurst.BubbleMatrix.StartNewGame();
         }
-
-        #endregion // Methods
-
-        #region Fields
-
-        readonly BubbleBurstViewModel _bubbleBurst;
-
-        #endregion // Fields
     }
 }

@@ -13,8 +13,11 @@ namespace BubbleBurst.ViewModel.Internal
     /// </summary>
     internal class BubblesTaskFactory
     {
-        #region Constructor
+        private readonly BubbleMatrixViewModel _bubbleMatrix;
 
+        /// <summary>Initializes a new instance of the <see cref="BubblesTaskFactory"/> class.</summary>
+        /// <param name="bubbleMatrix">The bubble matrix.</param>
+        /// <exception cref="System.ArgumentNullException">bubbleMatrix</exception>
         internal BubblesTaskFactory(BubbleMatrixViewModel bubbleMatrix)
         {
             if (bubbleMatrix == null)
@@ -22,8 +25,6 @@ namespace BubbleBurst.ViewModel.Internal
 
             _bubbleMatrix = bubbleMatrix;
         }
-
-        #endregion // Constructor
 
         #region Methods
 
@@ -36,17 +37,17 @@ namespace BubbleBurst.ViewModel.Internal
         /// <param name="bubblesInGroup">The bubbles for which tasks are created.</param>
         internal IEnumerable<BubblesTask> CreateTasks(BubbleViewModel[] bubblesInGroup)
         {
-            var taskTypes = new BubblesTaskType[] 
-            { 
-                BubblesTaskType.Burst, 
-                BubblesTaskType.MoveDown, 
-                BubblesTaskType.MoveRight 
+            var taskTypes = new BubblesTaskType[]
+            {
+                BubblesTaskType.Burst,
+                BubblesTaskType.MoveDown,
+                BubblesTaskType.MoveRight
             };
 
             // Dump the tasks into an array so that the query is not executed twice.
             return
                 (from taskType in taskTypes
-                 select this.CreateTask(taskType, bubblesInGroup))
+                 select CreateTask(taskType, bubblesInGroup))
                 .ToArray();
         }
 
@@ -61,7 +62,7 @@ namespace BubbleBurst.ViewModel.Internal
             // Dump the tasks into an array so that the query is not executed twice.
             return
                 (from originalTask in originalTasks.Reverse()
-                 select this.CreateUndoTask(originalTask))
+                 select CreateUndoTask(originalTask))
                 .ToArray();
         }
 
@@ -71,9 +72,11 @@ namespace BubbleBurst.ViewModel.Internal
 
         BubblesTask CreateUndoTask(BubblesTask originalTask)
         {
-            var bubbles = originalTask.Bubbles.ToList();
             Func<IEnumerable<BubbleViewModel>> getBubbles;
             Action complete;
+
+            var bubbles = originalTask.Bubbles.ToList();
+
             switch (originalTask.TaskType)
             {
                 case BubblesTaskType.MoveRight:
@@ -117,6 +120,7 @@ namespace BubbleBurst.ViewModel.Internal
                 default:
                     throw new ArgumentException("Unrecognized task type: " + originalTask.TaskType);
             }
+
             return new BubblesTask(originalTask.TaskType, true, getBubbles, complete);
         }
 
@@ -124,6 +128,7 @@ namespace BubbleBurst.ViewModel.Internal
         {
             Func<IEnumerable<BubbleViewModel>> getBubbles;
             Action complete;
+
             switch (taskType)
             {
                 case BubblesTaskType.Burst:
@@ -144,7 +149,7 @@ namespace BubbleBurst.ViewModel.Internal
                 case BubblesTaskType.MoveDown:
                     getBubbles = delegate
                     {
-                        return this.MoveNeighboringBubblesDown(bubblesInGroup);
+                        return MoveNeighboringBubblesDown(bubblesInGroup);
                     };
                     complete = delegate
                     {
@@ -155,18 +160,19 @@ namespace BubbleBurst.ViewModel.Internal
                 case BubblesTaskType.MoveRight:
                     getBubbles = delegate
                     {
-                        return this.MoveBubblesRight();
+                        return MoveBubblesRight();
                     };
                     complete = delegate
                     {
                         _bubbleMatrix.IsIdle = true;
-                        _bubbleMatrix.TryToEndGame();                        
+                        _bubbleMatrix.TryToEndGame();
                     };
                     break;
 
                 default:
                     throw new ArgumentException("Unrecognized task type: " + taskType);
             }
+
             return new BubblesTask(taskType, false, getBubbles, complete);
         }
 
@@ -174,7 +180,7 @@ namespace BubbleBurst.ViewModel.Internal
         {
             var movedBubbles = new List<BubbleViewModel>();
 
-            for (int rowIndex = 0; rowIndex < _bubbleMatrix.RowCount; ++rowIndex)
+            for (var rowIndex = 0; rowIndex < _bubbleMatrix.RowCount; ++rowIndex)
             {
                 var bubblesInRow =
                     _bubbleMatrix.Bubbles.Where(b => b.Row == rowIndex).ToArray();
@@ -184,17 +190,16 @@ namespace BubbleBurst.ViewModel.Internal
                     bubblesInRow.Length == _bubbleMatrix.ColumnCount)
                     continue;
 
-                for (int colIndex = _bubbleMatrix.ColumnCount - 1; colIndex > -1; --colIndex)
+                for (var colIndex = _bubbleMatrix.ColumnCount - 1; colIndex > -1; --colIndex)
                 {
                     var bubble = bubblesInRow.SingleOrDefault(b => b.Column == colIndex);
                     if (bubble != null)
                     {
-                        // Find out how many cells between the bubble 
-                        // and the last column have bubbles in them.
-                        int occupied = bubblesInRow.Where(b => bubble.Column < b.Column).Count();
+                        // Find out how many cells between the bubble and the last column have bubbles in them.
+                        var occupied = bubblesInRow.Where(b => bubble.Column < b.Column).Count();
 
                         // Now determine how many of the cells do not have a bubble in them.
-                        int empty = _bubbleMatrix.ColumnCount - 1 - bubble.Column - occupied;
+                        var empty = _bubbleMatrix.ColumnCount - 1 - bubble.Column - occupied;
                         if (empty != 0)
                         {
                             bubble.MoveTo(bubble.Row, bubble.Column + empty);
@@ -210,9 +215,9 @@ namespace BubbleBurst.ViewModel.Internal
         {
             var movedBubbles = new List<BubbleViewModel>();
 
-            int[] affectedColumns = bubblesInGroup.Select(b => b.Column).Distinct().ToArray();
+            var affectedColumns = bubblesInGroup.Select(b => b.Column).Distinct().ToArray();
 
-            foreach (int affectedColumn in affectedColumns)
+            foreach (var affectedColumn in affectedColumns)
             {
                 var bubblesInColumn = _bubbleMatrix.Bubbles.Where(b => b.Column == affectedColumn).ToArray();
                 if (bubblesInColumn.Length == 0)
@@ -224,21 +229,21 @@ namespace BubbleBurst.ViewModel.Internal
 
                     var emptyIndexes =
                         (from rowIndex in Enumerable.Range(0, _bubbleMatrix.RowCount)
-                        where !bubbleRowIndexes.Contains(rowIndex)
-                        select rowIndex)
+                         where !bubbleRowIndexes.Contains(rowIndex)
+                         select rowIndex)
                         .ToArray();
 
-                    int emptyIndexCount = emptyIndexes.Count();
+                    var emptyIndexCount = emptyIndexes.Count();
                     if (emptyIndexCount == 0 || emptyIndexCount == _bubbleMatrix.RowCount)
                         break;
 
                     var occupiedIndexes = bubblesInColumn.Select(b => b.Row).ToArray();
-                    int occupiedIndexCount = occupiedIndexes.Count();
+                    var occupiedIndexCount = occupiedIndexes.Count();
                     if (occupiedIndexCount == 0 || occupiedIndexCount == _bubbleMatrix.RowCount)
                         break;
 
-                    int bottomEmptyIndex = emptyIndexes.Max();
-                    int topOccupiedIndex = occupiedIndexes.Min();
+                    var bottomEmptyIndex = emptyIndexes.Max();
+                    var topOccupiedIndex = occupiedIndexes.Min();
                     if (bottomEmptyIndex < topOccupiedIndex)
                         break;
 
@@ -255,11 +260,5 @@ namespace BubbleBurst.ViewModel.Internal
         #endregion // Private
 
         #endregion // Methods
-
-        #region Fields
-
-        readonly BubbleMatrixViewModel _bubbleMatrix;
-
-        #endregion // Fields
     }
 }
