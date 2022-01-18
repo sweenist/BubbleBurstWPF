@@ -2,6 +2,7 @@ Build/
 *.vssscc
 *.suo
 **/[Bb]in
+**/[Oo]bj
 **/[Dd]ebug
 UpgradeLog*
 
