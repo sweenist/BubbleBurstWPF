@@ -9,13 +9,10 @@ namespace BubbleBurst.View
     /// <seealso cref="System.Windows.Controls.Canvas" />
     public class BubbleCanvas : Canvas
     {
-        /// <summary>Gets the size of the bubble.</summary>
         internal static int BubbleSize => 42;
 
-        /// <summary>Gets the column count.</summary>
         internal int ColumnCount => (int)Math.Floor(ActualWidth / BubbleSize);
 
-        /// <summary>Gets the row count.</summary>
         internal int RowCount => (int)Math.Floor(ActualHeight / BubbleSize);
 
         #region Methods

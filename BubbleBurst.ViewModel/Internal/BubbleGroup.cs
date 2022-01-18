@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace BubbleBurst.ViewModel.Internal
+﻿namespace BubbleBurst.ViewModel.Internal
 {
     /// <summary>
     /// Locates and stores a set contiguous bubbles of the same color.

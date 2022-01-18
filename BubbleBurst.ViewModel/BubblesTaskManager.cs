@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using BubbleBurst.ViewModel.Internal;
+﻿using BubbleBurst.ViewModel.Internal;
 
 namespace BubbleBurst.ViewModel
 {
@@ -23,18 +20,12 @@ namespace BubbleBurst.ViewModel
 
         #region Events
 
-        /// <summary>
-        /// Raised when tasks are available to be performed.
-        /// </summary>
         public event EventHandler PendingTasksAvailable;
 
         #endregion // Events
 
         #region Properties
 
-        /// <summary>
-        /// Returns true if an undo operation can be performed at this time.
-        /// </summary>
         internal bool CanUndo
         {
             get { return _undoStack.Any(); }
@@ -46,9 +37,6 @@ namespace BubbleBurst.ViewModel
 
         #region Public
 
-        /// <summary>
-        /// Returns the next pending task if one exists, or null.
-        /// </summary>
         public BubblesTask GetPendingTask()
         {
             return _pendingTasks.Any() ? _pendingTasks.Dequeue() : null;

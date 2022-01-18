@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace BubbleBurst.ViewModel.Internal
+﻿namespace BubbleBurst.ViewModel.Internal
 {
     /// <summary>
     /// Creates BubblesTask objects.  This class is responsible
@@ -51,12 +47,6 @@ namespace BubbleBurst.ViewModel.Internal
                 .ToArray();
         }
 
-        /// <summary>
-        /// Creates tasks used to undo the effects of the specified tasks.
-        /// </summary>
-        /// <param name="originalTasks">
-        /// The tasks used to perform the bubble burst about to be undone.
-        /// </param>
         internal IEnumerable<BubblesTask> CreateUndoTasks(IEnumerable<BubblesTask> originalTasks)
         {
             // Dump the tasks into an array so that the query is not executed twice.
@@ -151,10 +141,7 @@ namespace BubbleBurst.ViewModel.Internal
                     {
                         return MoveNeighboringBubblesDown(bubblesInGroup);
                     };
-                    complete = delegate
-                    {
-                        /* Nothing to do here. */
-                    };
+                    complete = delegate {}; //noop
                     break;
 
                 case BubblesTaskType.MoveRight:

@@ -1,9 +1,8 @@
 ﻿namespace BubbleBurst.ViewModel
 {
-    /// <summary>Represents the various kinds of bubbles.</summary>
     public enum BubbleType
     {
-        RedBubble = 0,
+        RedBubble,
         GreenBubble,
         BlueBubble,
         OrangeBubble,

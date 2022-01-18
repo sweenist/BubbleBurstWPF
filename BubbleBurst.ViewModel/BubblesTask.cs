@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace BubbleBurst.ViewModel
+﻿namespace BubbleBurst.ViewModel
 {
     /// <summary>
     /// Represents some work that BubbleMatrixView must 
@@ -24,9 +20,6 @@ namespace BubbleBurst.ViewModel
 
         #region Properties
 
-        /// <summary>
-        /// Returns the bubbles associated with this task.
-        /// </summary>
         public IEnumerable<BubbleViewModel> Bubbles
         {
             get
@@ -42,19 +35,10 @@ namespace BubbleBurst.ViewModel
             }
         }
 
-        /// <summary>
-        /// Invoked immediately after the task has been performed.
-        /// </summary>
         public Action Complete { get; private set; }
 
-        /// <summary>
-        /// Returns true if this task is undoing the effects of a previously performed task.
-        /// </summary>
         public bool IsUndo { get; private set; }
 
-        /// <summary>
-        /// Returns the kind of task this object represents.
-        /// </summary>
         public BubblesTaskType TaskType { get; private set; }
 
         #endregion // Properties

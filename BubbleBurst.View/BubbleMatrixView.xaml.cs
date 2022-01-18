@@ -13,7 +13,6 @@ namespace BubbleBurst.View
         private BubbleMatrixViewModel _bubbleMatrix;
         private BubblesTaskStoryboardFactory _storyboardFactory;
 
-        /// <summary>Initializes a new instance of the <see cref="BubbleMatrixView"/> class.</summary>
         public BubbleMatrixView()
         {
             InitializeComponent();

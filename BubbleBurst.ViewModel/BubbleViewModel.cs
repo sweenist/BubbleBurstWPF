@@ -43,10 +43,8 @@ namespace BubbleBurst.ViewModel
 
         #region Properties
 
-        /// <summary>Returns the kind of bubble this is.</summary>
         public BubbleType BubbleType { get; }
 
-        /// <summary>Returns true if this bubble is a member of the currently active bubble group in the user interface.</summary>
         public bool IsInBubbleGroup
         {
             get { return _isInBubbleGroup; }
@@ -61,19 +59,14 @@ namespace BubbleBurst.ViewModel
             }
         }
 
-        /// <summary>Returns the command used to burst the bubble group in which this bubble exists.</summary>
         public ICommand BurstBubbleGroupCommand => new RelayCommand(_bubbleMatrix.BurstBubbleGroup);
 
-        /// <summary>The column in which this bubble exists.</summary>
         public int Column => _locationManager.Column;
 
-        /// <summary>The column in which this bubble existed before it moved to its current column.</summary>
         public int PreviousColumn => _prevColumnDuringUndo.HasValue ? _prevColumnDuringUndo.Value : _locationManager.PreviousColumn;
 
-        /// <summary>The row in which this bubble existed before it moved to its current row.</summary>
         public int PreviousRow => _prevRowDuringUndo.HasValue ? _prevRowDuringUndo.Value : _locationManager.PreviousRow;
 
-        /// <summary>The row in which this bubble exists.</summary>
         public int Row => _locationManager.Row;
 
         #endregion // Properties
