@@ -50,7 +50,7 @@ namespace BubbleBurst.ViewModel
 
                 _gameOver = value;
 
-                base.RaisePropertyChanged("GameOver");
+                base.RaisePropertyChanged(nameof(GameOver));
             }
         }
 

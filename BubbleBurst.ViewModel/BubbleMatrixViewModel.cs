@@ -55,7 +55,7 @@ namespace BubbleBurst.ViewModel
 
                 _isIdle = value;
 
-                RaisePropertyChanged("IsIdle");
+                RaisePropertyChanged(nameof(IsIdle));
             }
         }
 

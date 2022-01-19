@@ -55,7 +55,7 @@ namespace BubbleBurst.ViewModel
 
                 _isInBubbleGroup = value;
 
-                RaisePropertyChanged("IsInBubbleGroup");
+                RaisePropertyChanged(nameof(IsInBubbleGroup));
             }
         }
 
